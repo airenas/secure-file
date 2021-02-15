@@ -1,6 +1,6 @@
 FROM iron/base
 LABEL Description="This image is used to host the secure file helper tools" \ 
-      Maintainer="airenass@gmail.com" Vendor="Airenas Vaiciunas" Version="1.0" 
+      Maintainer="airenass@gmail.com" Vendor="Airenas Vaiciunas" Version="${VERSION}" 
 
 WORKDIR /app
 

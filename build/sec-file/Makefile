@@ -16,8 +16,14 @@ $(dist_dir)/%: $(main_dir)/% | $(dist_dir)
 build: $(dist_tools_files)
 ########### DOCKER ##################################################################
 tag=$(service):$(version).$(commit_count)
-
-dbuild: build
+up-version:
+	rm -f $(dist_dir)/.version
+$(dist_dir)/.version:
+	echo $(version).$(commit_count) > $@
+Dockerfile: Dockerfile.in up-version $(dist_dir)/.version Makefile
+	cat $< | VERSION=$(version).$(commit_count) envsubst > $@
+#####################################################################################
+dbuild: build Dockerfile
 	docker build -t $(tag) ./
 
 dpush: dbuild
