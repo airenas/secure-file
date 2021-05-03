@@ -6,56 +6,95 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/airenas/secure/pkg/secure"
+	"github.com/airenas/secure/pkg/util"
+	"github.com/pkg/errors"
 )
-
-const secureExt = ".aes"
 
 func main() {
 	log.SetOutput(os.Stderr)
-	secretPtr := flag.String("s", "", "secret")
-	filePtr := flag.String("f", "", "result file, will look after <file.ext>.aes for decryption")
+
+	p := util.Params{}
+	flag.StringVar(&p.Secret, "s", "", "secret")
+	flag.StringVar(&p.File, "f", "", "result file, will look after <file.ext>.aes for decryption")
+	flag.StringVar(&p.FileList, "fl", "", "text file with files to decrypt. One line for one file")
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s:[params] [output-file to stdout]\n", os.Args[0])
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	if *filePtr == "" {
-		flag.Usage()
-		log.Fatal("No file")
+
+	if p.Secret == "" {
+		p.Secret = os.Getenv("SECRET")
 	}
-	secret := *secretPtr
-	if secret == "" {
-		secret = os.Getenv("SECRET")
-	}
-	if secret == "" {
+	if p.Secret == "" {
 		flag.Usage()
 		log.Fatal("No secret")
 	}
-
-	if fileUpToDate(*filePtr) {
-		log.Printf("File exists")
-		return
+	if p.FileList == "" || p.File == "" {
+		flag.Usage()
+		log.Fatal("No file or file list provided")
 	}
 
-	log.Printf("Read file " + *filePtr + secureExt)
-	b, err := ioutil.ReadFile(*filePtr + secureExt)
+	if p.FileList != "" && p.File != "" {
+		flag.Usage()
+		log.Fatal("Only one of <-f> or <-fl> is allowed")
+	}
+
+	if p.File != "" {
+		err := decryptFile(p.File, p.Secret)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		err := decryptFiles(p.FileList, p.Secret)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	log.Print("Done")
+}
+
+func decryptFile(file, secret string) error {
+	if fileUpToDate(file) {
+		log.Printf("File exists: %s", file)
+		return nil
+	}
+	b, err := ioutil.ReadFile(file + util.SecureFileExt)
 	if err != nil {
-		log.Fatal(err)
+		return errors.Wrapf(err, "can't read '%s'", file+util.SecureFileExt)
 	}
-	log.Printf("Decrypt")
-
 	b, err = secure.Decrypt(b, secret)
 	if err != nil {
-		log.Fatal(err)
+		return errors.Wrapf(err, "can't decrypt '%s'", file+util.SecureFileExt)
 	}
-	err = ioutil.WriteFile(*filePtr, b, 0644)
+	err = ioutil.WriteFile(file, b, 0644)
 	if err != nil {
-		log.Fatal(err)
+		return errors.Wrapf(err, "can't write '%s'", file)
 	}
 
-	log.Print("Done decrypting")
+	log.Printf("Decrypted: %s\n", file)
+	return nil
+}
+
+func decryptFiles(file, secret string) error {
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return errors.Wrapf(err, "can't read '%s'", file)
+	}
+	lines := strings.Split(string(b), "\n")
+	for _, s := range lines {
+		if strings.TrimSpace(s) != "" {
+			err := decryptFile(s, secret)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func fileUpToDate(filename string) bool {
@@ -63,7 +102,7 @@ func fileUpToDate(filename string) bool {
 	if os.IsNotExist(err) {
 		return false
 	}
-	inFile, err := os.Stat(filename + secureExt)
+	inFile, err := os.Stat(filename + util.SecureFileExt)
 	if os.IsNotExist(err) {
 		return false
 	}
