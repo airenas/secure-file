@@ -16,3 +16,4 @@
 go.sum
 build/sec-file/data/**
 build/sec-file/data/**
+build/sec-file/Dockerfile

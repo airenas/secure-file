@@ -15,6 +15,7 @@ import (
 
 func main() {
 	log.SetOutput(os.Stderr)
+	printVersion()
 	p := util.Params{}
 	flag.StringVar(&p.Secret, "s", "", "secret")
 	flag.StringVar(&p.File, "f", "", "file to encrypt. File will be encrypted to <file-name.ext.aes>")
@@ -88,4 +89,13 @@ func encryptFiles(file, secret string) error {
 		}
 	}
 	return nil
+}
+
+var (
+	version string
+)
+
+func printVersion() {
+	banner := "File encryptor v: %s"
+	log.Printf(banner, version)
 }

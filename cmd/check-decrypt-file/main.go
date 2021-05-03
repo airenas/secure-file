@@ -15,7 +15,7 @@ import (
 
 func main() {
 	log.SetOutput(os.Stderr)
-
+	printVersion()
 	p := util.Params{}
 	flag.StringVar(&p.Secret, "s", "", "secret")
 	flag.StringVar(&p.File, "f", "", "result file, will look after <file.ext>.aes for decryption")
@@ -107,4 +107,13 @@ func fileUpToDate(filename string) bool {
 		return false
 	}
 	return !outFile.IsDir() && !inFile.IsDir() && outFile.ModTime().After(inFile.ModTime())
+}
+
+var (
+	version string
+)
+
+func printVersion() {
+	banner := "File decryptor v: %s"
+	log.Printf(banner, version)
 }

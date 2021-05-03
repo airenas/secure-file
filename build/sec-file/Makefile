@@ -4,8 +4,8 @@ tools=encrypt-file check-decrypt-file
 dist_tools_files=$(patsubst %, $(dist_dir)/%, $(tools))
 main_dir=../../cmd
 service=airenas/secure-file
-version=0.1
-go_build_cmd=CGO_ENABLED=0 go build -installsuffix -cgo
+version=0.2
+go_build_cmd=CGO_ENABLED=0 go build -ldflags "-X main.version=$(version).$(commit_count)"
 commit_count=$(shell git rev-list --count HEAD)
 #####################################################################################
 $(dist_dir):
