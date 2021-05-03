@@ -32,7 +32,7 @@ func main() {
 		flag.Usage()
 		log.Fatal("No secret")
 	}
-	if p.FileList == "" || p.File == "" {
+	if p.FileList == "" && p.File == "" {
 		flag.Usage()
 		log.Fatal("No file or file list provided")
 	}

@@ -1,5 +1,5 @@
 ## encrypt file
-FROM airenas/secure-file:0.1.2 as encryptor
+FROM airenas/secure-file:0.2.9 as encryptor
 WORKDIR /app
 COPY secretFile.txt /app/
 ARG SECRET
