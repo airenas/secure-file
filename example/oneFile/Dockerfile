@@ -5,7 +5,7 @@ COPY secretFile.txt /app/
 ARG SECRET
 # use the value to set the ENV var default
 ENV SECRET=$SECRET
-RUN ./encrypt-file -f secretFile.txt -s $SECRET > secretFile.txt.aes
+RUN ./encrypt-file -f secretFile.txt -s $SECRET
 
 
 ## final image

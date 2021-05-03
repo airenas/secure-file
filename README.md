@@ -9,7 +9,7 @@ The repository hosts simple tools written with *go* and compiled without any ext
 See [example](example) dir for the complete sample. Prepare the sample image containing a secret file:
 
 ```bash
-cd example
+cd example/oneFile
 make dbuild secret=olia
 ```
 
@@ -28,9 +28,9 @@ You should fail seeing the data.
 
 ### Explanation
 
-The repo contains two tools *encrypt-file* and *check-decrypt-file*. By adding secret file to a docker image we do these steps. First we create a helper temporary image. See [example/Dockerfile](example/Dockerfile): 
-- during the build pass secret key with `--build-arg`. See [example/Makefile](example/Makefile) 
-- copy secret file into the image. Sample file [example/secretFile.txt](example/secretFile.txt) 
+The repo contains two tools *encrypt-file* and *check-decrypt-file*. By adding secret file to a docker image we do these steps. First we create a helper temporary image. See [example/oneFile/Dockerfile](example/Dockerfile): 
+- during the build pass secret key with `--build-arg`. See [example/oneFile/Makefile](example/Makefile) 
+- copy secret file into the image. Sample file [example/oneFile/secretFile.txt](example/secretFile.txt) 
 - encrypt secret file using the *encrypt-file* and the key
  
 Then we create the target image:  
